@@ -17,14 +17,15 @@ const MESSAGES = [
   `Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!`
 ];
 
-//
+const pictures = document.querySelector(`.pictures`);
+const templatePhotoItem = document.querySelector(`#picture`).content.querySelector(`.picture`);
 
 const getRandom = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 
 const getRandomItem = (array) => getRandom(0, array.length - 1);
 
-const generateArray = (length, generateItem) => [...Array(length)]
-  .map(generateItem);
+const generateArray = (length, generatorItem) => [...Array(length)]
+  .map(generatorItem);
 
 const getRandomAvatar = () => `img/avatar-${getRandom(1, AVATAR_NUMBER)}.svg`;
 
@@ -33,13 +34,11 @@ const getRandomMessage = () => generateArray(
     () => getRandomItem(MESSAGES)
 ).join(` `);
 
-const generateCommentItem = () => (
-  {
-    avatar: getRandomAvatar(),
-    message: getRandomMessage(),
-    name: getRandomItem(USER_NAMES),
-  }
-);
+const generateCommentItem = () => ({
+  avatar: getRandomAvatar(),
+  message: getRandomMessage(),
+  name: getRandomItem(USER_NAMES),
+});
 
 const generateCommentList = () => generateArray(
     getRandom(MIN_COMMENTS, MAX_COMMENTS),
@@ -53,17 +52,13 @@ const generatePhotoItem = (id) => ({
   comments: generateCommentList(),
 });
 
-const generatePhotoList = (max) => {
-  const photoList = [];
-  for (let i = 1; i <= max; i++) {
-    photoList.push(generatePhotoItem(i));
-  }
-
-  return photoList;
-};
+const generatePhotoList = (max) => generateArray(
+    max,
+    (_, index) => generatePhotoItem(index + 1)
+);
 
 const renderPhotoItem = (photo) => {
-  let photoElement = templatePhotoItem.cloneNode(true);
+  const photoElement = templatePhotoItem.cloneNode(true);
 
   photoElement.querySelector(`.picture__img`).src = photo.url;
   photoElement.querySelector(`.picture__likes`).textContent = photo.likes;
@@ -74,17 +69,12 @@ const renderPhotoItem = (photo) => {
 
 const renderPhotoList = (photoList) => {
   const fragment = document.createDocumentFragment();
-  for (let photo of photoList) {
+  for (const photo of photoList) {
     fragment.appendChild(renderPhotoItem(photo));
   }
 
   return fragment;
 };
-
-//
-
-const pictures = document.querySelector(`.pictures`);
-const templatePhotoItem = document.querySelector(`#picture`).content.querySelector(`.picture`);
 
 const photoList = generatePhotoList(PHOTOS_NUMBER);
 
