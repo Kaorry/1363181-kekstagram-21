@@ -22,7 +22,7 @@ const templatePhotoItem = document.querySelector(`#picture`).content.querySelect
 
 const getRandom = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 
-const getRandomItem = (array) => getRandom(0, array.length - 1);
+const getRandomItem = (array) => array[getRandom(0, array.length - 1)];
 
 const generateArray = (length, generatorItem) => [...Array(length)]
   .map(generatorItem);
