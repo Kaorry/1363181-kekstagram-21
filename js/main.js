@@ -7,7 +7,18 @@ const MAX_LIKES = 200;
 const MIN_COMMENTS = 5;
 const MAX_COMMENTS = 20;
 
-const USER_NAMES = [`Алиса`, `Мурзик`, `Леголас95`, `Горра`, `DimOn`, `Wind`, `Андрей`, `Космос`, `Бьянка`, `Mister_X`];
+const USER_NAMES = [
+  `Алиса`,
+  `Мурзик`,
+  `Леголас95`,
+  `Горра`,
+  `DimOn`,
+  `Wind`,
+  `Андрей`,
+  `Космос`,
+  `Бьянка`,
+  `Mister_X`
+];
 const MESSAGES = [
   `Всё отлично!`,
   `В целом всё неплохо. Но не всё.`,
