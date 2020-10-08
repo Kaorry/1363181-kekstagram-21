@@ -143,4 +143,160 @@ const showBigPicture = (photo) => {
 const photoList = generatePhotoList(PHOTOS_NUMBER);
 pictures.appendChild(renderPhotoList(photoList));
 
-showBigPicture(photoList[0]);
+// showBigPicture(photoList[0]);
+
+// новое задание
+
+const KEY_ESCAPE = `Escape`;
+const DEFAULT_EFFECT_INTENSITY = 20;
+const STEP_SCALE_VALUE = 25;
+const HASHTAG_AMOUNT = 5;
+const HASHTAG_RULE = /^#[\wа-яё]{1,19}$/;
+
+const imgUploadInput = document.querySelector(`.img-upload__input`);
+const imgUploadOverlay = document.querySelector(`.img-upload__overlay`);
+const imgUploadCancel = document.querySelector(`.img-upload__cancel`);
+const imgUploadEffects = document.querySelector(`.img-upload__effects`);
+
+const imageUploadPreview = imgUploadOverlay.querySelector(`.img-upload__preview`);
+const imageForChange = imageUploadPreview.querySelector(`img`);
+const imgUploadEffectLevel = imgUploadOverlay.querySelector(`.img-upload__effect-level`);
+const effectLevelLine = imgUploadOverlay.querySelector(`.effect-level__line`);
+const effectLevelPin = imgUploadOverlay.querySelector(`.effect-level__pin`);
+const effectLevelDepth = imgUploadOverlay.querySelector(`.effect-level__depth`);
+const effectLevelValue = imgUploadOverlay.querySelector(`.effect-level__value`);
+
+const scaleControlSmaller = imgUploadOverlay.querySelector(`.scale__control--smaller`);
+const scaleControlBigger = imgUploadOverlay.querySelector(`.scale__control--bigger`);
+const scaleControlValue = imgUploadOverlay.querySelector(`.scale__control--value`);
+
+const effects = {
+  none: () => ``,
+  chrome: (intensity) => `grayscale(${intensity / 100})`,
+  sepia: (intensity) => `sepia(${intensity / 100})`,
+  marvin: (intensity) => `invert(${intensity}%)`,
+  phobos: (intensity) => `blur(${intensity * 3 / 100}px)`,
+  heat: (intensity) => `brightness(${(intensity * 2 / 100) + 1})`,
+};
+
+let currentScaleValue = 100;
+let currentEffect = `none`;
+let currentEffectIntensity = DEFAULT_EFFECT_INTENSITY;
+
+const onCancelKeyPress = (event) => {
+  if (event.key === KEY_ESCAPE && !event.target.matches(`input[type="text"]`)) {
+    event.preventDefault();
+    closeModalEditor();
+  }
+};
+
+const openModalEditor = () => {
+  imgUploadOverlay.classList.remove(`hidden`);
+  document.body.classList.add(`modal-open`);
+
+  document.addEventListener(`keydown`, onCancelKeyPress);
+};
+
+const closeModalEditor = () => {
+  imgUploadOverlay.classList.add(`hidden`);
+  document.body.classList.remove(`modal-open`);
+
+  document.removeEventListener(`keydown`, onCancelKeyPress);
+};
+
+const onEffectsRadioListChange = (event) => {
+  imageUploadPreview.classList.remove(`effects__preview--${currentEffect}`);
+  currentEffect = event.target.value;
+  currentEffectIntensity = DEFAULT_EFFECT_INTENSITY;
+
+  if (currentEffect === `none`) {
+    imgUploadEffectLevel.classList.add(`hidden`);
+  } else {
+    imgUploadEffectLevel.classList.remove(`hidden`);
+  }
+
+  applyCurrentEffect();
+};
+
+const applyCurrentEffect = () => {
+  imageUploadPreview.classList.add(`effects__preview--${currentEffect}`);
+  imageUploadPreview.style.filter = effects[currentEffect](currentEffectIntensity);
+
+  const rect = effectLevelLine.getBoundingClientRect();
+  const left = currentEffectIntensity * rect.width / 100;
+  effectLevelPin.style.left = `${left}px`;
+  effectLevelDepth.style.width = `${left}px`;
+  effectLevelValue.value = currentEffectIntensity;
+};
+
+const changeScale = (direction) => {
+  currentScaleValue = Math.min(
+      100,
+      Math.max(
+          25,
+          currentScaleValue + STEP_SCALE_VALUE * (direction > 0 ? 1 : -1)
+      )
+  );
+  scaleControlValue.value = `${currentScaleValue}%`;
+  imageForChange.style.transform = `scale(${currentScaleValue / 100})`;
+};
+
+const validateHashtag = (hashtagValue) => {
+  const value = hashtagValue.trim().toLowerCase();
+
+  if (value.length === 0) {
+    return true;
+  }
+
+  const hashtagList = value.split(/\s+/);
+
+  const hashtagSet = new Set(hashtagList);
+  if (hashtagList.length !== hashtagSet.size) {
+    return `Хэш-теги не должны повторяться`;
+  }
+
+  if (hashtagList.length > HASHTAG_AMOUNT) {
+    return `Количество хэш-тегов не больше ${HASHTAG_AMOUNT}`;
+  }
+
+  for (let hashtag of hashtagList) {
+    if (HASHTAG_RULE.test(hashtag) === false) {
+      return `Неверный формат хэш-тега "${hashtag}"`;
+    }
+  }
+
+  return true;
+};
+
+imgUploadInput.addEventListener(`change`, openModalEditor);
+imgUploadCancel.addEventListener(`click`, closeModalEditor);
+
+effectLevelLine.addEventListener(`mouseup`, (event) => {
+  event.preventDefault();
+
+  const rect = effectLevelLine.getBoundingClientRect();
+  const left = event.clientX - rect.left;
+  currentEffectIntensity = left * 100 / rect.width;
+  applyCurrentEffect();
+});
+
+imgUploadEffectLevel.classList.add(`hidden`);
+imgUploadEffects.addEventListener(`change`, onEffectsRadioListChange);
+
+scaleControlValue.value = `${currentScaleValue}%`;
+imageForChange.style.transform = `scale(${currentScaleValue / 100})`;
+scaleControlSmaller.addEventListener(`click`, () => changeScale(-1));
+scaleControlBigger.addEventListener(`click`, () => changeScale(1));
+
+const hashtagInput = imgUploadOverlay.querySelector(`.text__hashtags`);
+
+hashtagInput.addEventListener(`input`, () => {
+  const validateResult = validateHashtag(hashtagInput.value);
+  if (validateResult === true) {
+    hashtagInput.setCustomValidity(``);
+    hashtagInput.style.borderColor = `transparent`;
+  } else {
+    hashtagInput.setCustomValidity(validateResult);
+    hashtagInput.style.borderColor = `red`;
+  }
+});
