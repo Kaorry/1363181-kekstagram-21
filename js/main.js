@@ -121,6 +121,10 @@ const renderCommentItem = (comment) => {
 };
 
 const showBigPicture = (photo) => {
+  if (!photo) {
+    return;
+  }
+
   bigPicture.img.src = photo.url;
   bigPicture.likesCount.textContent = photo.likes;
   bigPicture.commentsCount.textContent = photo.comments.length;
@@ -143,7 +147,7 @@ const showBigPicture = (photo) => {
 const photoList = generatePhotoList(PHOTOS_NUMBER);
 pictures.appendChild(renderPhotoList(photoList));
 
-// showBigPicture(photoList[0]);
+showBigPicture();
 
 // новое задание
 
@@ -296,6 +300,7 @@ hashtagInput.addEventListener(`input`, () => {
     hashtagInput.setCustomValidity(``);
     hashtagInput.style.borderColor = `transparent`;
   } else {
+    // todo Не всплывают сообщения с ошибками
     hashtagInput.setCustomValidity(validateResult);
     hashtagInput.style.borderColor = `red`;
   }
