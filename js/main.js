@@ -153,9 +153,12 @@ showBigPicture();
 
 const KEY_ESCAPE = `Escape`;
 const DEFAULT_EFFECT_INTENSITY = 20;
+const DEFAULT_SCALE_VALUE = 100;
+const DEFAULT_EFFECT = `none`;
 const STEP_SCALE_VALUE = 25;
 const HASHTAG_AMOUNT = 5;
 const HASHTAG_RULE = /^#[\wа-яё]{1,19}$/;
+
 
 const imgUploadInput = document.querySelector(`.img-upload__input`);
 const imgUploadOverlay = document.querySelector(`.img-upload__overlay`);
@@ -174,6 +177,9 @@ const scaleControlSmaller = imgUploadOverlay.querySelector(`.scale__control--sma
 const scaleControlBigger = imgUploadOverlay.querySelector(`.scale__control--bigger`);
 const scaleControlValue = imgUploadOverlay.querySelector(`.scale__control--value`);
 
+const hashtagInput = imgUploadOverlay.querySelector(`.text__hashtags`);
+const descriptionInput = imgUploadOverlay.querySelector(`.text__description`);
+
 const effects = {
   none: () => ``,
   chrome: (intensity) => `grayscale(${intensity / 100})`,
@@ -183,9 +189,8 @@ const effects = {
   heat: (intensity) => `brightness(${(intensity * 2 / 100) + 1})`,
 };
 
-let currentScaleValue = 100;
-let currentEffect = `none`;
-let currentEffectIntensity = DEFAULT_EFFECT_INTENSITY;
+let currentScaleValue = DEFAULT_SCALE_VALUE;
+let currentEffect = DEFAULT_EFFECT;
 
 const onCancelKeyPress = (event) => {
   if (event.key === KEY_ESCAPE && !event.target.matches(`input[type="text"]`)) {
@@ -194,7 +199,26 @@ const onCancelKeyPress = (event) => {
   }
 };
 
+const between = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const resetEditorForm = () => {
+  currentScaleValue = DEFAULT_SCALE_VALUE;
+  currentEffect = DEFAULT_EFFECT;
+
+  applyEffect(currentEffect, DEFAULT_EFFECT_INTENSITY);
+  applyScale(currentScaleValue);
+
+  hashtagInput.value = ``;
+  descriptionInput.value = ``;
+  imgUploadInput.value = ``;
+
+  hashtagInput.setCustomValidity(``);
+  hashtagInput.style.borderColor = `transparent`;
+};
+
 const openModalEditor = () => {
+  resetEditorForm();
+
   imgUploadOverlay.classList.remove(`hidden`);
   document.body.classList.add(`modal-open`);
 
@@ -206,12 +230,11 @@ const closeModalEditor = () => {
   document.body.classList.remove(`modal-open`);
 
   document.removeEventListener(`keydown`, onCancelKeyPress);
+  resetEditorForm();
 };
 
 const onEffectsRadioListChange = (event) => {
-  imageUploadPreview.classList.remove(`effects__preview--${currentEffect}`);
   currentEffect = event.target.value;
-  currentEffectIntensity = DEFAULT_EFFECT_INTENSITY;
 
   if (currentEffect === `none`) {
     imgUploadEffectLevel.classList.add(`hidden`);
@@ -219,37 +242,42 @@ const onEffectsRadioListChange = (event) => {
     imgUploadEffectLevel.classList.remove(`hidden`);
   }
 
-  applyCurrentEffect();
+  applyEffect(currentEffect, DEFAULT_EFFECT_INTENSITY);
 };
 
-const applyCurrentEffect = () => {
-  imageUploadPreview.classList.add(`effects__preview--${currentEffect}`);
-  imageUploadPreview.style.filter = effects[currentEffect](currentEffectIntensity);
+const applyEffect = (effect, intensity) => {
+  imageForChange.className = ``;
+  imageForChange.classList.add(`effects__preview--${effect}`);
+  imageForChange.style.filter = effects[effect](intensity);
 
-  const rect = effectLevelLine.getBoundingClientRect();
-  const left = currentEffectIntensity * rect.width / 100;
-  effectLevelPin.style.left = `${left}px`;
-  effectLevelDepth.style.width = `${left}px`;
-  effectLevelValue.value = currentEffectIntensity;
+  if (effect === `none`) {
+    imgUploadEffectLevel.classList.add(`hidden`);
+  } else {
+    imgUploadEffectLevel.classList.remove(`hidden`);
+    const width = effectLevelLine.offsetWidth;
+    const left = intensity * width / 100;
+    effectLevelPin.style.left = `${left}px`;
+    effectLevelDepth.style.width = `${left}px`;
+  }
+  effectLevelValue.value = intensity;
 };
 
 const changeScale = (direction) => {
-  currentScaleValue = Math.min(
-      100,
-      Math.max(
-          25,
-          currentScaleValue + STEP_SCALE_VALUE * (direction > 0 ? 1 : -1)
-      )
-  );
-  scaleControlValue.value = `${currentScaleValue}%`;
-  imageForChange.style.transform = `scale(${currentScaleValue / 100})`;
+  const newScaleValue = currentScaleValue + STEP_SCALE_VALUE * direction;
+  currentScaleValue = between(newScaleValue, 25, 100);
+  applyScale(currentScaleValue);
+};
+
+const applyScale = (scale) => {
+  scaleControlValue.value = `${scale}%`;
+  imageForChange.style.transform = `scale(${scale / 100})`;
 };
 
 const validateHashtag = (hashtagValue) => {
   const value = hashtagValue.trim().toLowerCase();
 
   if (value.length === 0) {
-    return true;
+    return ``;
   }
 
   const hashtagList = value.split(/\s+/);
@@ -269,7 +297,7 @@ const validateHashtag = (hashtagValue) => {
     }
   }
 
-  return true;
+  return ``;
 };
 
 imgUploadInput.addEventListener(`change`, openModalEditor);
@@ -280,28 +308,17 @@ effectLevelLine.addEventListener(`mouseup`, (event) => {
 
   const rect = effectLevelLine.getBoundingClientRect();
   const left = event.clientX - rect.left;
-  currentEffectIntensity = left * 100 / rect.width;
-  applyCurrentEffect();
+  const intensity = left * 100 / rect.width;
+  applyEffect(currentEffect, intensity);
 });
 
-imgUploadEffectLevel.classList.add(`hidden`);
 imgUploadEffects.addEventListener(`change`, onEffectsRadioListChange);
 
-scaleControlValue.value = `${currentScaleValue}%`;
-imageForChange.style.transform = `scale(${currentScaleValue / 100})`;
 scaleControlSmaller.addEventListener(`click`, () => changeScale(-1));
 scaleControlBigger.addEventListener(`click`, () => changeScale(1));
 
-const hashtagInput = imgUploadOverlay.querySelector(`.text__hashtags`);
-
 hashtagInput.addEventListener(`input`, () => {
   const validateResult = validateHashtag(hashtagInput.value);
-  if (validateResult === true) {
-    hashtagInput.setCustomValidity(``);
-    hashtagInput.style.borderColor = `transparent`;
-  } else {
-    // todo Не всплывают сообщения с ошибками
-    hashtagInput.setCustomValidity(validateResult);
-    hashtagInput.style.borderColor = `red`;
-  }
+  hashtagInput.setCustomValidity(validateResult);
+  hashtagInput.style.borderColor = validateResult ? `red` : `transparent`;
 });
