@@ -121,6 +121,10 @@ const renderCommentItem = (comment) => {
 };
 
 const showBigPicture = (photo) => {
+  if (!photo) {
+    return;
+  }
+
   bigPicture.img.src = photo.url;
   bigPicture.likesCount.textContent = photo.likes;
   bigPicture.commentsCount.textContent = photo.comments.length;
@@ -143,4 +147,178 @@ const showBigPicture = (photo) => {
 const photoList = generatePhotoList(PHOTOS_NUMBER);
 pictures.appendChild(renderPhotoList(photoList));
 
-showBigPicture(photoList[0]);
+showBigPicture();
+
+// новое задание
+
+const KEY_ESCAPE = `Escape`;
+const DEFAULT_EFFECT_INTENSITY = 20;
+const DEFAULT_SCALE_VALUE = 100;
+const DEFAULT_EFFECT = `none`;
+const STEP_SCALE_VALUE = 25;
+const HASHTAG_AMOUNT = 5;
+const HASHTAG_RULE = /^#[\wа-яё]{1,19}$/;
+
+
+const imgUploadInput = document.querySelector(`.img-upload__input`);
+const imgUploadOverlay = document.querySelector(`.img-upload__overlay`);
+const imgUploadCancel = document.querySelector(`.img-upload__cancel`);
+const imgUploadEffects = document.querySelector(`.img-upload__effects`);
+
+const imageUploadPreview = imgUploadOverlay.querySelector(`.img-upload__preview`);
+const imageForChange = imageUploadPreview.querySelector(`img`);
+const imgUploadEffectLevel = imgUploadOverlay.querySelector(`.img-upload__effect-level`);
+const effectLevelLine = imgUploadOverlay.querySelector(`.effect-level__line`);
+const effectLevelPin = imgUploadOverlay.querySelector(`.effect-level__pin`);
+const effectLevelDepth = imgUploadOverlay.querySelector(`.effect-level__depth`);
+const effectLevelValue = imgUploadOverlay.querySelector(`.effect-level__value`);
+
+const scaleControlSmaller = imgUploadOverlay.querySelector(`.scale__control--smaller`);
+const scaleControlBigger = imgUploadOverlay.querySelector(`.scale__control--bigger`);
+const scaleControlValue = imgUploadOverlay.querySelector(`.scale__control--value`);
+
+const hashtagInput = imgUploadOverlay.querySelector(`.text__hashtags`);
+const descriptionInput = imgUploadOverlay.querySelector(`.text__description`);
+
+const effects = {
+  none: () => ``,
+  chrome: (intensity) => `grayscale(${intensity / 100})`,
+  sepia: (intensity) => `sepia(${intensity / 100})`,
+  marvin: (intensity) => `invert(${intensity}%)`,
+  phobos: (intensity) => `blur(${intensity * 3 / 100}px)`,
+  heat: (intensity) => `brightness(${(intensity * 2 / 100) + 1})`,
+};
+
+let currentScaleValue = DEFAULT_SCALE_VALUE;
+let currentEffect = DEFAULT_EFFECT;
+
+const onCancelKeyPress = (event) => {
+  if (event.key === KEY_ESCAPE && !event.target.matches(`input[type="text"]`)) {
+    event.preventDefault();
+    closeModalEditor();
+  }
+};
+
+const between = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const resetEditorForm = () => {
+  currentScaleValue = DEFAULT_SCALE_VALUE;
+  currentEffect = DEFAULT_EFFECT;
+
+  applyEffect(currentEffect, DEFAULT_EFFECT_INTENSITY);
+  applyScale(currentScaleValue);
+
+  hashtagInput.value = ``;
+  descriptionInput.value = ``;
+  imgUploadInput.value = ``;
+
+  hashtagInput.setCustomValidity(``);
+  hashtagInput.style.borderColor = `transparent`;
+};
+
+const openModalEditor = () => {
+  resetEditorForm();
+
+  imgUploadOverlay.classList.remove(`hidden`);
+  document.body.classList.add(`modal-open`);
+
+  document.addEventListener(`keydown`, onCancelKeyPress);
+};
+
+const closeModalEditor = () => {
+  imgUploadOverlay.classList.add(`hidden`);
+  document.body.classList.remove(`modal-open`);
+
+  document.removeEventListener(`keydown`, onCancelKeyPress);
+  resetEditorForm();
+};
+
+const onEffectsRadioListChange = (event) => {
+  currentEffect = event.target.value;
+
+  if (currentEffect === `none`) {
+    imgUploadEffectLevel.classList.add(`hidden`);
+  } else {
+    imgUploadEffectLevel.classList.remove(`hidden`);
+  }
+
+  applyEffect(currentEffect, DEFAULT_EFFECT_INTENSITY);
+};
+
+const applyEffect = (effect, intensity) => {
+  imageForChange.className = ``;
+  imageForChange.classList.add(`effects__preview--${effect}`);
+  imageForChange.style.filter = effects[effect](intensity);
+
+  if (effect === `none`) {
+    imgUploadEffectLevel.classList.add(`hidden`);
+  } else {
+    imgUploadEffectLevel.classList.remove(`hidden`);
+    const width = effectLevelLine.offsetWidth;
+    const left = intensity * width / 100;
+    effectLevelPin.style.left = `${left}px`;
+    effectLevelDepth.style.width = `${left}px`;
+  }
+  effectLevelValue.value = intensity;
+};
+
+const changeScale = (direction) => {
+  const newScaleValue = currentScaleValue + STEP_SCALE_VALUE * direction;
+  currentScaleValue = between(newScaleValue, 25, 100);
+  applyScale(currentScaleValue);
+};
+
+const applyScale = (scale) => {
+  scaleControlValue.value = `${scale}%`;
+  imageForChange.style.transform = `scale(${scale / 100})`;
+};
+
+const validateHashtag = (hashtagValue) => {
+  const value = hashtagValue.trim().toLowerCase();
+
+  if (value.length === 0) {
+    return ``;
+  }
+
+  const hashtagList = value.split(/\s+/);
+
+  const hashtagSet = new Set(hashtagList);
+  if (hashtagList.length !== hashtagSet.size) {
+    return `Хэш-теги не должны повторяться`;
+  }
+
+  if (hashtagList.length > HASHTAG_AMOUNT) {
+    return `Количество хэш-тегов не больше ${HASHTAG_AMOUNT}`;
+  }
+
+  for (let hashtag of hashtagList) {
+    if (HASHTAG_RULE.test(hashtag) === false) {
+      return `Неверный формат хэш-тега "${hashtag}"`;
+    }
+  }
+
+  return ``;
+};
+
+imgUploadInput.addEventListener(`change`, openModalEditor);
+imgUploadCancel.addEventListener(`click`, closeModalEditor);
+
+effectLevelLine.addEventListener(`mouseup`, (event) => {
+  event.preventDefault();
+
+  const rect = effectLevelLine.getBoundingClientRect();
+  const left = event.clientX - rect.left;
+  const intensity = left * 100 / rect.width;
+  applyEffect(currentEffect, intensity);
+});
+
+imgUploadEffects.addEventListener(`change`, onEffectsRadioListChange);
+
+scaleControlSmaller.addEventListener(`click`, () => changeScale(-1));
+scaleControlBigger.addEventListener(`click`, () => changeScale(1));
+
+hashtagInput.addEventListener(`input`, () => {
+  const validateResult = validateHashtag(hashtagInput.value);
+  hashtagInput.setCustomValidity(validateResult);
+  hashtagInput.style.borderColor = validateResult ? `red` : `transparent`;
+});
