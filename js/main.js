@@ -33,6 +33,12 @@ const DESCRIPTIONS = [
   `Прикольно получилось`
 ];
 
+let onCancelKeyPress;
+const cancelKeyHandlerType = {
+  bigPicture: `bigPicture`,
+  editor: `editor`,
+};
+
 const pictures = document.querySelector(`.pictures`);
 const templatePhotoItem = document.querySelector(`#picture`).content.querySelector(`.picture`);
 
@@ -49,6 +55,7 @@ const bigPicture = (() => {
     commentList: main.querySelector(`.social__comments`),
     caption: main.querySelector(`.social__caption`),
     templateCommentItem: main.querySelector(`.social__comment`).cloneNode(true),
+    cancelButton: main.querySelector(`.big-picture__cancel`),
   };
 })();
 
@@ -78,6 +85,7 @@ const generateCommentList = () => generateArray(
 );
 
 const generatePhotoItem = (id) => ({
+  id,
   url: `photos/${id}.jpg`,
   description: getRandomItem(DESCRIPTIONS),
   likes: getRandom(MIN_LIKES, MAX_LIKES),
@@ -95,6 +103,7 @@ const renderPhotoItem = (photo) => {
   photoElement.querySelector(`.picture__img`).src = photo.url;
   photoElement.querySelector(`.picture__likes`).textContent = photo.likes;
   photoElement.querySelector(`.picture__comments`).textContent = photo.comments.length;
+  photoElement.dataset.id = photo.id;
 
   return photoElement;
 };
@@ -142,12 +151,63 @@ const showBigPicture = (photo) => {
   bigPicture.commentLoader.classList.add(`hidden`);
   document.body.classList.add(`modal-open`);
   bigPicture.main.classList.remove(`hidden`);
+
+  bigPicture.cancelButton.addEventListener(`click`, hideBigPicture);
+  onCancelKeyPress = createCancelKeyHandler(cancelKeyHandlerType.bigPicture);
+  document.addEventListener(`keydown`, onCancelKeyPress);
 };
+
+const hideBigPicture = () => {
+  document.body.classList.remove(`modal-open`);
+  bigPicture.main.classList.add(`hidden`);
+
+  bigPicture.cancelButton.removeEventListener(`click`, hideBigPicture);
+  document.removeEventListener(`keydown`, onCancelKeyPress);
+  onCancelKeyPress = undefined;
+};
+
+const createCancelKeyHandler = (type) => {
+  if (type === cancelKeyHandlerType.bigPicture) {
+    return (event) => {
+      if (
+        event.key === KEY_ESCAPE
+      ) {
+        event.preventDefault();
+        hideBigPicture();
+      }
+    };
+  }
+
+  if (type === cancelKeyHandlerType.editor) {
+    return (event) => {
+      if (
+        event.key === KEY_ESCAPE &&
+        !event.target.matches(`input[type="text"], textarea`)
+      ) {
+        event.preventDefault();
+        closeModalEditor();
+      }
+    };
+  }
+
+  return undefined;
+};
+
+const getPhotoItemByID = (id) => photoList.find((photoItem) => photoItem.id === id);
 
 const photoList = generatePhotoList(PHOTOS_NUMBER);
 pictures.appendChild(renderPhotoList(photoList));
 
-showBigPicture();
+pictures.addEventListener(`click`, (event) => {
+  if (event.target.matches(`*[class^="picture"]`)) {
+    event.preventDefault();
+    const id = parseInt(
+        event.target.dataset.id || event.target.closest(`.picture`).dataset.id,
+        10
+    );
+    showBigPicture(getPhotoItemByID(id));
+  }
+});
 
 // новое задание
 
@@ -158,7 +218,6 @@ const DEFAULT_EFFECT = `none`;
 const STEP_SCALE_VALUE = 25;
 const HASHTAG_AMOUNT = 5;
 const HASHTAG_RULE = /^#[\wа-яё]{1,19}$/;
-
 
 const imgUploadInput = document.querySelector(`.img-upload__input`);
 const imgUploadOverlay = document.querySelector(`.img-upload__overlay`);
@@ -192,13 +251,6 @@ const effects = {
 let currentScaleValue = DEFAULT_SCALE_VALUE;
 let currentEffect = DEFAULT_EFFECT;
 
-const onCancelKeyPress = (event) => {
-  if (event.key === KEY_ESCAPE && !event.target.matches(`input[type="text"]`)) {
-    event.preventDefault();
-    closeModalEditor();
-  }
-};
-
 const between = (value, min, max) => Math.min(max, Math.max(min, value));
 
 const resetEditorForm = () => {
@@ -222,15 +274,20 @@ const openModalEditor = () => {
   imgUploadOverlay.classList.remove(`hidden`);
   document.body.classList.add(`modal-open`);
 
+  imgUploadCancel.addEventListener(`click`, closeModalEditor);
+  onCancelKeyPress = createCancelKeyHandler(cancelKeyHandlerType.editor);
   document.addEventListener(`keydown`, onCancelKeyPress);
 };
 
 const closeModalEditor = () => {
+  resetEditorForm();
+
   imgUploadOverlay.classList.add(`hidden`);
   document.body.classList.remove(`modal-open`);
 
+  imgUploadCancel.removeEventListener(`click`, closeModalEditor);
   document.removeEventListener(`keydown`, onCancelKeyPress);
-  resetEditorForm();
+  onCancelKeyPress = undefined;
 };
 
 const onEffectsRadioListChange = (event) => {
@@ -246,8 +303,7 @@ const onEffectsRadioListChange = (event) => {
 };
 
 const applyEffect = (effect, intensity) => {
-  imageForChange.className = ``;
-  imageForChange.classList.add(`effects__preview--${effect}`);
+  imageForChange.className = `effects__preview--${effect}`;
   imageForChange.style.filter = effects[effect](intensity);
 
   if (effect === `none`) {
@@ -301,7 +357,6 @@ const validateHashtag = (hashtagValue) => {
 };
 
 imgUploadInput.addEventListener(`change`, openModalEditor);
-imgUploadCancel.addEventListener(`click`, closeModalEditor);
 
 effectLevelLine.addEventListener(`mouseup`, (event) => {
   event.preventDefault();
