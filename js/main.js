@@ -33,7 +33,11 @@ const DESCRIPTIONS = [
   `Прикольно получилось`
 ];
 
-let closeCurrentModal = null;
+let onCancelKeyPress;
+const cancelKeyHandlerType = {
+  bigPicture: `bigPicture`,
+  editor: `editor`,
+};
 
 const pictures = document.querySelector(`.pictures`);
 const templatePhotoItem = document.querySelector(`#picture`).content.querySelector(`.picture`);
@@ -148,24 +152,45 @@ const showBigPicture = (photo) => {
   document.body.classList.add(`modal-open`);
   bigPicture.main.classList.remove(`hidden`);
 
-  closeCurrentModal = hideBigPicture;
+  bigPicture.cancelButton.addEventListener(`click`, hideBigPicture);
+  onCancelKeyPress = createCancelKeyHandler(cancelKeyHandlerType.bigPicture);
+  document.addEventListener(`keydown`, onCancelKeyPress);
 };
 
 const hideBigPicture = () => {
   document.body.classList.remove(`modal-open`);
   bigPicture.main.classList.add(`hidden`);
+
+  bigPicture.cancelButton.removeEventListener(`click`, hideBigPicture);
+  document.removeEventListener(`keydown`, onCancelKeyPress);
+  onCancelKeyPress = undefined;
 };
 
-const onCancelKeyPress = (event) => {
-  if (
-    closeCurrentModal &&
-    event.key === KEY_ESCAPE &&
-    !event.target.matches(`input[type="text"], textarea`)
-  ) {
-    event.preventDefault();
-    closeCurrentModal();
-    closeCurrentModal = null;
+const createCancelKeyHandler = (type) => {
+  if (type === cancelKeyHandlerType.bigPicture) {
+    return (event) => {
+      if (
+        event.key === KEY_ESCAPE
+      ) {
+        event.preventDefault();
+        hideBigPicture();
+      }
+    };
   }
+
+  if (type === cancelKeyHandlerType.editor) {
+    return (event) => {
+      if (
+        event.key === KEY_ESCAPE &&
+        !event.target.matches(`input[type="text"], textarea`)
+      ) {
+        event.preventDefault();
+        closeModalEditor();
+      }
+    };
+  }
+
+  return undefined;
 };
 
 const getPhotoItemByID = (id) => photoList.find((photoItem) => photoItem.id === id);
@@ -183,9 +208,6 @@ pictures.addEventListener(`click`, (event) => {
     showBigPicture(getPhotoItemByID(id));
   }
 });
-
-document.addEventListener(`keydown`, onCancelKeyPress);
-bigPicture.cancelButton.addEventListener(`click`, hideBigPicture);
 
 // новое задание
 
@@ -252,14 +274,20 @@ const openModalEditor = () => {
   imgUploadOverlay.classList.remove(`hidden`);
   document.body.classList.add(`modal-open`);
 
-  closeCurrentModal = closeModalEditor;
+  imgUploadCancel.addEventListener(`click`, closeModalEditor);
+  onCancelKeyPress = createCancelKeyHandler(cancelKeyHandlerType.editor);
+  document.addEventListener(`keydown`, onCancelKeyPress);
 };
 
 const closeModalEditor = () => {
+  resetEditorForm();
+
   imgUploadOverlay.classList.add(`hidden`);
   document.body.classList.remove(`modal-open`);
 
-  resetEditorForm();
+  imgUploadCancel.removeEventListener(`click`, closeModalEditor);
+  document.removeEventListener(`keydown`, onCancelKeyPress);
+  onCancelKeyPress = undefined;
 };
 
 const onEffectsRadioListChange = (event) => {
@@ -329,7 +357,6 @@ const validateHashtag = (hashtagValue) => {
 };
 
 imgUploadInput.addEventListener(`change`, openModalEditor);
-imgUploadCancel.addEventListener(`click`, closeModalEditor);
 
 effectLevelLine.addEventListener(`mouseup`, (event) => {
   event.preventDefault();
