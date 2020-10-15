@@ -57,7 +57,7 @@
 
                   <!-- Изменение глубины эффекта, накладываемого на изображение -->
                   <fieldset class="img-upload__effect-level  effect-level">
-                    <input class="effect-level__value" type="number" name="effect-level" value="20">
+                    <input class="effect-level__value" type="hidden" name="effect-level" value="20">
                     <div class="effect-level__line">
                       <div class="effect-level__pin" tabindex="0">Кнопка изменения глубины эффекта фотографии</div>
                       <div class="effect-level__depth">Глубина эффекта фотографии</div>
@@ -233,7 +233,12 @@
     <div class="img-upload__message  img-upload__message--loading">Загружаем...</div>
   </template>
 
+<script src="js/util.js"></script>
+<script src="js/data.js"></script>
+<script src="js/photo-list.js"></script>
+<script src="js/big-picture.js"></script>
+<script src="js/editor-effect.js"></script>
+<script src="js/editor.js"></script>
 <script src="js/main.js"></script>
-
 </body>
 </html>
