@@ -1,21 +1,26 @@
 'use strict';
 
 (function () {
-  const imgUploadPreviewContainer = document.querySelector(`.img-upload__preview-container`);
-  const imgUploadEffects = document.querySelector(`.img-upload__effects`);
+  const DEFAULT_EFFECT_INTENSITY = 20;
+  const DEFAULT_SCALE_VALUE = 100;
+  const DEFAULT_EFFECT = `none`;
+  const STEP_SCALE_VALUE = 25;
 
-  const imageUploadPreview = imgUploadPreviewContainer.querySelector(`.img-upload__preview`);
+  const previewContainer = document.querySelector(`.img-upload__preview-container`);
+  const imageUploadEffects = document.querySelector(`.img-upload__effects`);
+
+  const imageUploadPreview = previewContainer.querySelector(`.img-upload__preview`);
   const imageForChange = imageUploadPreview.querySelector(`img`);
 
-  const imgUploadEffectLevel = imgUploadPreviewContainer.querySelector(`.img-upload__effect-level`);
-  const effectLevelLine = imgUploadPreviewContainer.querySelector(`.effect-level__line`);
-  const effectLevelPin = imgUploadPreviewContainer.querySelector(`.effect-level__pin`);
-  const effectLevelDepth = imgUploadPreviewContainer.querySelector(`.effect-level__depth`);
-  const effectLevelValue = imgUploadPreviewContainer.querySelector(`.effect-level__value`);
+  const imageUploadEffectLevel = previewContainer.querySelector(`.img-upload__effect-level`);
+  const effectLevelLine = previewContainer.querySelector(`.effect-level__line`);
+  const effectLevelPin = previewContainer.querySelector(`.effect-level__pin`);
+  const effectLevelDepth = previewContainer.querySelector(`.effect-level__depth`);
+  const effectLevelValue = previewContainer.querySelector(`.effect-level__value`);
 
-  const scaleControlSmaller = imgUploadPreviewContainer.querySelector(`.scale__control--smaller`);
-  const scaleControlBigger = imgUploadPreviewContainer.querySelector(`.scale__control--bigger`);
-  const scaleControlValue = imgUploadPreviewContainer.querySelector(`.scale__control--value`);
+  const scaleControlSmaller = previewContainer.querySelector(`.scale__control--smaller`);
+  const scaleControlBigger = previewContainer.querySelector(`.scale__control--bigger`);
+  const scaleControlValue = previewContainer.querySelector(`.scale__control--value`);
 
   const effects = {
     none: () => ``,
@@ -26,14 +31,14 @@
     heat: (intensity) => `brightness(${(intensity * 2 / 100) + 1})`,
   };
 
-  let currentScaleValue = window.const.DEFAULT_SCALE_VALUE;
-  let currentEffect = window.const.DEFAULT_EFFECT;
+  let currentScaleValue = DEFAULT_SCALE_VALUE;
+  let currentEffect = DEFAULT_EFFECT;
 
   const reset = () => {
-    currentScaleValue = window.const.DEFAULT_SCALE_VALUE;
-    currentEffect = window.const.DEFAULT_EFFECT;
+    currentScaleValue = DEFAULT_SCALE_VALUE;
+    currentEffect = DEFAULT_EFFECT;
 
-    applyEffect(currentEffect, window.const.DEFAULT_EFFECT_INTENSITY);
+    applyEffect(currentEffect, DEFAULT_EFFECT_INTENSITY);
     applyScale(currentScaleValue);
   };
 
@@ -41,7 +46,7 @@
     effectLevelLine.addEventListener(`mouseup`, onEffectLineMouseUp);
     scaleControlSmaller.addEventListener(`click`, onScaleControlClick);
     scaleControlBigger.addEventListener(`click`, onScaleControlClick);
-    imgUploadEffects.addEventListener(`change`, onEffectsRadioListChange);
+    imageUploadEffects.addEventListener(`change`, onEffectsRadioListChange);
 
   };
 
@@ -49,19 +54,19 @@
     effectLevelLine.removeEventListener(`mouseup`, onEffectLineMouseUp);
     scaleControlSmaller.removeEventListener(`click`, onScaleControlClick);
     scaleControlBigger.removeEventListener(`click`, onScaleControlClick);
-    imgUploadEffects.removeEventListener(`change`, onEffectsRadioListChange);
+    imageUploadEffects.removeEventListener(`change`, onEffectsRadioListChange);
   };
 
   const onEffectsRadioListChange = (event) => {
     currentEffect = event.target.value;
 
     if (currentEffect === `none`) {
-      imgUploadEffectLevel.classList.add(`hidden`);
+      imageUploadEffectLevel.classList.add(`hidden`);
     } else {
-      imgUploadEffectLevel.classList.remove(`hidden`);
+      imageUploadEffectLevel.classList.remove(`hidden`);
     }
 
-    applyEffect(currentEffect, window.const.DEFAULT_EFFECT_INTENSITY);
+    applyEffect(currentEffect, DEFAULT_EFFECT_INTENSITY);
   };
 
   const onScaleControlClick = (event) => {
@@ -83,9 +88,9 @@
     imageForChange.style.filter = effects[effect](intensity);
 
     if (effect === `none`) {
-      imgUploadEffectLevel.classList.add(`hidden`);
+      imageUploadEffectLevel.classList.add(`hidden`);
     } else {
-      imgUploadEffectLevel.classList.remove(`hidden`);
+      imageUploadEffectLevel.classList.remove(`hidden`);
       const width = effectLevelLine.offsetWidth;
       const left = intensity * width / 100;
       effectLevelPin.style.left = `${left}px`;
@@ -95,7 +100,7 @@
   };
 
   const changeScale = (direction) => {
-    const newScaleValue = currentScaleValue + window.const.STEP_SCALE_VALUE * direction;
+    const newScaleValue = currentScaleValue + STEP_SCALE_VALUE * direction;
     currentScaleValue = window.util.between(newScaleValue, 25, 100);
     applyScale(currentScaleValue);
   };
@@ -108,6 +113,6 @@
   window.editorEffect = {
     reset,
     enable,
-    disable
+    disable,
   };
 })();

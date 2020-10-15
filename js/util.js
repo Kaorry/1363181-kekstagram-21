@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  const KEY_ESCAPE = `Escape`;
+
   const getRandom = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 
   const getRandomItem = (array) => array[getRandom(0, array.length - 1)];
@@ -10,9 +12,7 @@
 
   const createCancelKeyHandler = (fn) => {
     return function (event) {
-      if (
-        event.key === window.const.KEY_ESCAPE && fn(event.target)
-      ) {
+      if (event.key === KEY_ESCAPE && fn(event.target)) {
         event.preventDefault();
       }
     };

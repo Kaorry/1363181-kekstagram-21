@@ -1,7 +1,7 @@
 'use strict';
 
 const pictures = document.querySelector(`.pictures`);
-pictures.appendChild(window.photoList.renderPhotoList(window.data.photoList));
+pictures.appendChild(window.photoList.render(window.data.photoList));
 
 pictures.addEventListener(`click`, (event) => {
   if (event.target.matches(`*[class^="picture"]`)) {
@@ -11,6 +11,6 @@ pictures.addEventListener(`click`, (event) => {
         10
     );
     const pictureItem = window.data.getPhotoItemByID(id);
-    window.bigPicture.showBigPicture(pictureItem);
+    window.bigPicture.show(pictureItem);
   }
 });

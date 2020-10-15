@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  const bigPicture = (() => {
+  const htmlELements = (() => {
     const main = document.querySelector(`.big-picture`);
 
     return {
@@ -19,7 +19,7 @@
   })();
 
   const renderCommentItem = (comment) => {
-    const commentElement = bigPicture.templateCommentItem.cloneNode(true);
+    const commentElement = htmlELements.templateCommentItem.cloneNode(true);
     const pictureElement = commentElement.querySelector(`.social__picture`);
     const textElement = commentElement.querySelector(`.social__text`);
 
@@ -30,48 +30,48 @@
     return commentElement;
   };
 
-  const showBigPicture = (photo) => {
+  const show = (photo) => {
     if (!photo) {
       return;
     }
 
-    bigPicture.img.src = photo.url;
-    bigPicture.likesCount.textContent = photo.likes;
-    bigPicture.commentsCount.textContent = photo.comments.length;
-    bigPicture.commentList.innerHTML = ``;
+    htmlELements.img.src = photo.url;
+    htmlELements.likesCount.textContent = photo.likes;
+    htmlELements.commentsCount.textContent = photo.comments.length;
+    htmlELements.commentList.innerHTML = ``;
 
     const fragment = document.createDocumentFragment();
     for (const comment of photo.comments) {
       fragment.appendChild(renderCommentItem(comment));
     }
-    bigPicture.commentList.appendChild(fragment);
+    htmlELements.commentList.appendChild(fragment);
 
-    bigPicture.caption.textContent = photo.description;
+    htmlELements.caption.textContent = photo.description;
 
-    bigPicture.commentCounter.classList.add(`hidden`);
-    bigPicture.commentLoader.classList.add(`hidden`);
+    htmlELements.commentCounter.classList.add(`hidden`);
+    htmlELements.commentLoader.classList.add(`hidden`);
     document.body.classList.add(`modal-open`);
-    bigPicture.main.classList.remove(`hidden`);
+    htmlELements.main.classList.remove(`hidden`);
 
-    bigPicture.cancelButton.addEventListener(`click`, hideBigPicture);
+    htmlELements.cancelButton.addEventListener(`click`, hide);
     document.addEventListener(`keydown`, onBigPictureEsc);
   };
 
-  const hideBigPicture = () => {
+  const hide = () => {
     document.body.classList.remove(`modal-open`);
-    bigPicture.main.classList.add(`hidden`);
+    htmlELements.main.classList.add(`hidden`);
 
-    bigPicture.cancelButton.removeEventListener(`click`, hideBigPicture);
+    htmlELements.cancelButton.removeEventListener(`click`, hide);
     document.removeEventListener(`keydown`, onBigPictureEsc);
   };
 
   const onBigPictureEsc = window.util.createCancelKeyHandler(() => {
-    hideBigPicture();
+    hide();
     return true;
   });
 
   window.bigPicture = {
-    showBigPicture,
-    hideBigPicture,
+    show,
+    hide,
   };
 })();

@@ -13,7 +13,7 @@
     return photoElement;
   };
 
-  const renderPhotoList = (photoList) => {
+  const render = (photoList) => {
     const fragment = document.createDocumentFragment();
     for (const photo of photoList) {
       fragment.appendChild(renderPhotoItem(photo));
@@ -23,6 +23,6 @@
   };
 
   window.photoList = {
-    renderPhotoList,
+    render,
   };
 })();

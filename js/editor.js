@@ -1,6 +1,9 @@
 'use strict';
 
 (function () {
+  const HASHTAG_AMOUNT = 5;
+  const HASHTAG_RULE = /^#[\wа-яё]{1,19}$/;
+
   const imgUploadInput = document.querySelector(`.img-upload__input`);
   const imgUploadOverlay = document.querySelector(`.img-upload__overlay`);
   const imgUploadCancel = document.querySelector(`.img-upload__cancel`);
@@ -10,7 +13,7 @@
 
   const onEditorEsc = window.util.createCancelKeyHandler((target) => {
     if (!target.matches(`input[type="text"], textarea`)) {
-      closeModalEditor();
+      hide();
       return true;
     }
 
@@ -26,19 +29,19 @@
     hashtagInput.style.borderColor = `transparent`;
   };
 
-  const openModalEditor = () => {
+  const show = () => {
     resetEditorForm();
     window.editorEffect.enable();
 
     imgUploadOverlay.classList.remove(`hidden`);
     document.body.classList.add(`modal-open`);
 
-    imgUploadCancel.addEventListener(`click`, closeModalEditor);
+    imgUploadCancel.addEventListener(`click`, hide);
     document.addEventListener(`keydown`, onEditorEsc);
     hashtagInput.addEventListener(`input`, onHashtagInput);
   };
 
-  const closeModalEditor = () => {
+  const hide = () => {
     resetEditorForm();
     window.editorEffect.disable();
     imgUploadInput.value = ``;
@@ -46,7 +49,7 @@
     imgUploadOverlay.classList.add(`hidden`);
     document.body.classList.remove(`modal-open`);
 
-    imgUploadCancel.removeEventListener(`click`, closeModalEditor);
+    imgUploadCancel.removeEventListener(`click`, hide);
     document.removeEventListener(`keydown`, onEditorEsc);
     hashtagInput.removeEventListener(`input`, onHashtagInput);
   };
@@ -71,12 +74,12 @@
       return `Хэш-теги не должны повторяться`;
     }
 
-    if (hashtagList.length > window.const.HASHTAG_AMOUNT) {
-      return `Количество хэш-тегов не больше ${window.const.HASHTAG_AMOUNT}`;
+    if (hashtagList.length > HASHTAG_AMOUNT) {
+      return `Количество хэш-тегов не больше ${HASHTAG_AMOUNT}`;
     }
 
     for (let hashtag of hashtagList) {
-      if (window.const.HASHTAG_RULE.test(hashtag) === false) {
+      if (HASHTAG_RULE.test(hashtag) === false) {
         return `Неверный формат хэш-тега "${hashtag}"`;
       }
     }
@@ -84,10 +87,10 @@
     return ``;
   };
 
-  imgUploadInput.addEventListener(`change`, openModalEditor);
+  imgUploadInput.addEventListener(`change`, show);
 
   window.editor = {
-    openModalEditor,
-    closeModalEditor,
+    show,
+    hide,
   };
 })();
