@@ -33,29 +33,7 @@
 
   let currentScaleValue = DEFAULT_SCALE_VALUE;
   let currentEffect = DEFAULT_EFFECT;
-
-  const reset = () => {
-    currentScaleValue = DEFAULT_SCALE_VALUE;
-    currentEffect = DEFAULT_EFFECT;
-
-    applyEffect(currentEffect, DEFAULT_EFFECT_INTENSITY);
-    applyScale(currentScaleValue);
-  };
-
-  const enable = () => {
-    effectLevelLine.addEventListener(`mouseup`, onEffectLineMouseUp);
-    scaleControlSmaller.addEventListener(`click`, onScaleControlClick);
-    scaleControlBigger.addEventListener(`click`, onScaleControlClick);
-    imageUploadEffects.addEventListener(`change`, onEffectsRadioListChange);
-
-  };
-
-  const disable = () => {
-    effectLevelLine.removeEventListener(`mouseup`, onEffectLineMouseUp);
-    scaleControlSmaller.removeEventListener(`click`, onScaleControlClick);
-    scaleControlBigger.removeEventListener(`click`, onScaleControlClick);
-    imageUploadEffects.removeEventListener(`change`, onEffectsRadioListChange);
-  };
+  let effectPinDragged = false;
 
   const onEffectsRadioListChange = (event) => {
     currentEffect = event.target.value;
@@ -74,12 +52,59 @@
     changeScale(direction);
   };
 
-  const onEffectLineMouseUp = (event) => {
+  const onEffectLineMouseDown = (event) => {
+    event.preventDefault();
+    changeEffectByMouseEvent(event);
+  };
+
+  const onEffectPinMouse = (event) => {
     event.preventDefault();
 
+    if (effectPinDragged) {
+      changeEffectByMouseEvent(event);
+    }
+
+    if (event.type === `mousedown`) {
+      effectPinDragged = true;
+      document.addEventListener(`mousemove`, onEffectPinMouse);
+      document.addEventListener(`mouseup`, onEffectPinMouse);
+    } else if (event.type === `mouseup`) {
+      effectPinDragged = false;
+      document.removeEventListener(`mousemove`, onEffectPinMouse);
+      document.removeEventListener(`mouseup`, onEffectPinMouse);
+    }
+  };
+
+  const reset = () => {
+    currentScaleValue = DEFAULT_SCALE_VALUE;
+    currentEffect = DEFAULT_EFFECT;
+
+    applyEffect(currentEffect, DEFAULT_EFFECT_INTENSITY);
+    applyScale(currentScaleValue);
+  };
+
+  const enable = () => {
+    effectLevelLine.addEventListener(`mousedown`, onEffectLineMouseDown);
+    effectLevelPin.addEventListener(`mousedown`, onEffectPinMouse);
+
+    scaleControlSmaller.addEventListener(`click`, onScaleControlClick);
+    scaleControlBigger.addEventListener(`click`, onScaleControlClick);
+    imageUploadEffects.addEventListener(`change`, onEffectsRadioListChange);
+  };
+
+  const disable = () => {
+    effectLevelLine.removeEventListener(`mousedown`, onEffectLineMouseDown);
+    effectLevelPin.removeEventListener(`mousedown`, onEffectPinMouse);
+
+    scaleControlSmaller.removeEventListener(`click`, onScaleControlClick);
+    scaleControlBigger.removeEventListener(`click`, onScaleControlClick);
+    imageUploadEffects.removeEventListener(`change`, onEffectsRadioListChange);
+  };
+
+  const changeEffectByMouseEvent = (event) => {
     const rect = effectLevelLine.getBoundingClientRect();
     const left = event.clientX - rect.left;
-    const intensity = left * 100 / rect.width;
+    const intensity = window.util.between(left * 100 / rect.width, 0, 100);
     applyEffect(currentEffect, intensity);
   };
 
