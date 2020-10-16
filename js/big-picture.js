@@ -18,6 +18,11 @@
     };
   })();
 
+  const onEsc = window.util.createCancelKeyHandler(() => {
+    hide();
+    return true;
+  });
+
   const renderCommentItem = (comment) => {
     const commentElement = htmlELements.templateCommentItem.cloneNode(true);
     const pictureElement = commentElement.querySelector(`.social__picture`);
@@ -54,7 +59,7 @@
     htmlELements.main.classList.remove(`hidden`);
 
     htmlELements.cancelButton.addEventListener(`click`, hide);
-    document.addEventListener(`keydown`, onBigPictureEsc);
+    document.addEventListener(`keydown`, onEsc);
   };
 
   const hide = () => {
@@ -62,13 +67,8 @@
     htmlELements.main.classList.add(`hidden`);
 
     htmlELements.cancelButton.removeEventListener(`click`, hide);
-    document.removeEventListener(`keydown`, onBigPictureEsc);
+    document.removeEventListener(`keydown`, onEsc);
   };
-
-  const onBigPictureEsc = window.util.createCancelKeyHandler(() => {
-    hide();
-    return true;
-  });
 
   window.bigPicture = {
     show,
