@@ -57,23 +57,36 @@
     changeEffectByMouseEvent(event);
   };
 
-  const onEffectPinMouse = (event) => {
+  const onEffectPinMouseMove = (event) => {
     event.preventDefault();
 
     if (effectPinDragged) {
       changeEffectByMouseEvent(event);
     }
+  };
 
-    if (event.type === `mousedown`) {
+  const onEffectPinMouseDown = (event) => {
+    event.preventDefault();
+
+    if (effectPinDragged === false) {
+      changeEffectByMouseEvent(event);
       effectPinDragged = true;
-      document.addEventListener(`mousemove`, onEffectPinMouse);
-      document.addEventListener(`mouseup`, onEffectPinMouse);
-    } else if (event.type === `mouseup`) {
-      effectPinDragged = false;
-      document.removeEventListener(`mousemove`, onEffectPinMouse);
-      document.removeEventListener(`mouseup`, onEffectPinMouse);
+      document.addEventListener(`mousemove`, onEffectPinMouseMove);
+      document.addEventListener(`mouseup`, onEffectPinMouseUp);
     }
   };
+
+  const onEffectPinMouseUp = (event) => {
+    event.preventDefault();
+
+    if (effectPinDragged) {
+      changeEffectByMouseEvent(event);
+      effectPinDragged = false;
+      document.removeEventListener(`mousemove`, onEffectPinMouseMove);
+      document.removeEventListener(`mouseup`, onEffectPinMouseUp);
+    }
+  };
+
 
   const reset = () => {
     currentScaleValue = DEFAULT_SCALE_VALUE;
@@ -85,7 +98,7 @@
 
   const enable = () => {
     effectLevelLine.addEventListener(`mousedown`, onEffectLineMouseDown);
-    effectLevelPin.addEventListener(`mousedown`, onEffectPinMouse);
+    effectLevelPin.addEventListener(`mousedown`, onEffectPinMouseDown);
 
     scaleControlSmaller.addEventListener(`click`, onScaleControlClick);
     scaleControlBigger.addEventListener(`click`, onScaleControlClick);
@@ -94,7 +107,7 @@
 
   const disable = () => {
     effectLevelLine.removeEventListener(`mousedown`, onEffectLineMouseDown);
-    effectLevelPin.removeEventListener(`mousedown`, onEffectPinMouse);
+    effectLevelPin.removeEventListener(`mousedown`, onEffectPinMouseDown);
 
     scaleControlSmaller.removeEventListener(`click`, onScaleControlClick);
     scaleControlBigger.removeEventListener(`click`, onScaleControlClick);
