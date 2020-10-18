@@ -33,7 +33,6 @@
 
   let currentScaleValue = DEFAULT_SCALE_VALUE;
   let currentEffect = DEFAULT_EFFECT;
-  let effectPinDragged = false;
 
   const onEffectsRadioListChange = (event) => {
     currentEffect = event.target.value;
@@ -59,34 +58,22 @@
 
   const onEffectPinMouseMove = (event) => {
     event.preventDefault();
-
-    if (effectPinDragged) {
-      changeEffectByMouseEvent(event);
-    }
+    changeEffectByMouseEvent(event);
   };
 
   const onEffectPinMouseDown = (event) => {
     event.preventDefault();
-
-    if (effectPinDragged === false) {
-      changeEffectByMouseEvent(event);
-      effectPinDragged = true;
-      document.addEventListener(`mousemove`, onEffectPinMouseMove);
-      document.addEventListener(`mouseup`, onEffectPinMouseUp);
-    }
+    changeEffectByMouseEvent(event);
+    document.addEventListener(`mousemove`, onEffectPinMouseMove);
+    document.addEventListener(`mouseup`, onEffectPinMouseUp);
   };
 
   const onEffectPinMouseUp = (event) => {
     event.preventDefault();
-
-    if (effectPinDragged) {
-      changeEffectByMouseEvent(event);
-      effectPinDragged = false;
-      document.removeEventListener(`mousemove`, onEffectPinMouseMove);
-      document.removeEventListener(`mouseup`, onEffectPinMouseUp);
-    }
+    changeEffectByMouseEvent(event);
+    document.removeEventListener(`mousemove`, onEffectPinMouseMove);
+    document.removeEventListener(`mouseup`, onEffectPinMouseUp);
   };
-
 
   const reset = () => {
     currentScaleValue = DEFAULT_SCALE_VALUE;
