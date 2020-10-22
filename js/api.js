@@ -1,14 +1,16 @@
 'use strict';
 
 (function () {
-  const LOAD_DATA_URL = `https://21.javascript.pages.academy/kekstagram/data`;
+  const BASE_URL = `https://21.javascript.pages.academy/kekstagram`;
+  const LOAD_DATA_URL = `${BASE_URL}/data`;
+  const UPLOAD_DATA_URL = `${BASE_URL}`;
   const StatusCode = {
     OK: 200
   };
 
   const TIMEOUT_IN_MS = 10000;
 
-  const send = (url, method, onSuccess, onError) => {
+  const send = (url, method, onSuccess, onError, data = undefined) => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = `json`;
 
@@ -27,7 +29,6 @@
       if (error) {
         onError(error);
       }
-
     };
 
     xhr.addEventListener(
@@ -42,12 +43,22 @@
 
     xhr.timeout = TIMEOUT_IN_MS;
 
-    xhr.send();
+    xhr.send(data);
   };
 
-  const loadData = (onSuccess, onError) => send(LOAD_DATA_URL, `GET`, onSuccess, onError);
+  const load = (onSuccess, onError) => send(LOAD_DATA_URL, `GET`, onSuccess, onError);
+  const upload = (data, onResult) => {
+    return send(
+        UPLOAD_DATA_URL,
+        `POST`,
+        () => onResult(true),
+        () => onResult(false),
+        data
+    );
+  };
 
   window.api = {
-    loadData,
+    load,
+    upload,
   };
 })();
