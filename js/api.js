@@ -4,17 +4,29 @@
   const BASE_URL = `https://21.javascript.pages.academy/kekstagram`;
   const LOAD_DATA_URL = `${BASE_URL}/data`;
   const UPLOAD_DATA_URL = `${BASE_URL}`;
+
+  const Endpoints = {
+    load: {
+      url: LOAD_DATA_URL,
+      method: `GET`,
+    },
+    upload: {
+      url: UPLOAD_DATA_URL,
+      method: `POST`,
+    },
+  };
+
   const StatusCode = {
     OK: 200
   };
 
   const TIMEOUT_IN_MS = 10000;
 
-  const send = (url, method, onSuccess, onError, data = undefined) => {
+  const createXHR = (endpoint, onSuccess, onError) => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = `json`;
 
-    xhr.open(method, url);
+    xhr.open(endpoint.method, endpoint.url);
 
     const onLoadData = () => {
       let error;
@@ -43,18 +55,17 @@
 
     xhr.timeout = TIMEOUT_IN_MS;
 
-    xhr.send(data);
+    return xhr;
   };
 
-  const load = (onSuccess, onError) => send(LOAD_DATA_URL, `GET`, onSuccess, onError);
-  const upload = (data, onResult) => {
-    return send(
-        UPLOAD_DATA_URL,
-        `POST`,
-        () => onResult(true),
-        () => onResult(false),
-        data
-    );
+  const load = (onSuccess, onError) => {
+    const xhr = createXHR(Endpoints.load, onSuccess, onError);
+    xhr.send();
+  };
+
+  const upload = (data, onSuccess, onError) => {
+    const xhr = createXHR(Endpoints.upload, onSuccess, onError);
+    xhr.send(data);
   };
 
   window.api = {

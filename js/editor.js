@@ -4,8 +4,6 @@
   const HASHTAG_AMOUNT = 5;
   const HASHTAG_RULE = /^#[\wа-яё]{1,19}$/;
 
-  const mainElement = document.querySelector(`main`);
-
   const imgUploadForm = document.querySelector(`.img-upload__form`);
   const imgUploadInput = document.querySelector(`.img-upload__input`);
   const imgUploadOverlay = document.querySelector(`.img-upload__overlay`);
@@ -13,11 +11,6 @@
 
   const hashtagInput = imgUploadOverlay.querySelector(`.text__hashtags`);
   const descriptionInput = imgUploadOverlay.querySelector(`.text__description`);
-
-  const templateSuccessMessage = document.querySelector(`#success`).content.querySelector(`.success`);
-  const templateErrorMessage = document.querySelector(`#error`).content.querySelector(`.error`);
-
-  let submitMessage;
 
   const onEditorEsc = window.util.createCancelKeyHandler((target) => {
     if (!target.matches(`input[type="text"], textarea`)) {
@@ -38,41 +31,19 @@
     event.preventDefault();
     window.api.upload(
         new FormData(imgUploadForm),
-        (isSuccess) => {
-          showSubmitMessage(isSuccess);
+        () => {
+          window.editorMessage.showSuccessMessage();
+          imgUploadOverlay.classList.add(`hidden`);
+          resetEditorForm();
+          imgUploadInput.value = ``;
+        },
+        () => {
+          window.editorMessage.showErrorMessage();
           imgUploadOverlay.classList.add(`hidden`);
           resetEditorForm();
           imgUploadInput.value = ``;
         }
     );
-  };
-
-  const onEsc = window.util.createCancelKeyHandler(() => {
-    hideSubmitMessage();
-    return true;
-  });
-
-  const onDocumentClick = (event) => {
-    event.preventDefault();
-    hideSubmitMessage();
-  };
-
-  const showSubmitMessage = (isSuccess) => {
-    if (submitMessage) {
-      hideSubmitMessage();
-    }
-    const template = isSuccess ? templateSuccessMessage : templateErrorMessage;
-    submitMessage = template.cloneNode(true);
-    mainElement.appendChild(submitMessage);
-    document.addEventListener(`keydown`, onEsc);
-    document.addEventListener(`click`, onDocumentClick);
-  };
-
-  const hideSubmitMessage = () => {
-    submitMessage.remove();
-    submitMessage = undefined;
-    document.removeEventListener(`keydown`, onEsc);
-    document.removeEventListener(`click`, onDocumentClick);
   };
 
   const resetEditorForm = () => {

@@ -1,8 +1,9 @@
 'use strict';
 
 (function () {
+  const templatePhotoItem = document.querySelector(`#picture`).content.querySelector(`.picture`);
+
   const renderPhotoItem = (photo) => {
-    const templatePhotoItem = document.querySelector(`#picture`).content.querySelector(`.picture`);
     const photoElement = templatePhotoItem.cloneNode(true);
 
     photoElement.querySelector(`.picture__img`).src = photo.url;
