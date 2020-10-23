@@ -4,6 +4,7 @@
   const HASHTAG_AMOUNT = 5;
   const HASHTAG_RULE = /^#[\wа-яё]{1,19}$/;
 
+  const imgUploadForm = document.querySelector(`.img-upload__form`);
   const imgUploadInput = document.querySelector(`.img-upload__input`);
   const imgUploadOverlay = document.querySelector(`.img-upload__overlay`);
   const imgUploadCancel = document.querySelector(`.img-upload__cancel`);
@@ -19,6 +20,31 @@
 
     return false;
   });
+
+  const onHashtagInput = () => {
+    const validateResult = validateHashtag(hashtagInput.value);
+    hashtagInput.setCustomValidity(validateResult);
+    hashtagInput.style.borderColor = validateResult ? `red` : `transparent`;
+  };
+
+  const onSubmitUserData = (event) => {
+    event.preventDefault();
+    window.api.upload(
+        new FormData(imgUploadForm),
+        () => {
+          window.editorMessage.showSuccessMessage();
+          imgUploadOverlay.classList.add(`hidden`);
+          resetEditorForm();
+          imgUploadInput.value = ``;
+        },
+        () => {
+          window.editorMessage.showErrorMessage();
+          imgUploadOverlay.classList.add(`hidden`);
+          resetEditorForm();
+          imgUploadInput.value = ``;
+        }
+    );
+  };
 
   const resetEditorForm = () => {
     window.editorEffect.reset();
@@ -39,6 +65,7 @@
     imgUploadCancel.addEventListener(`click`, hide);
     document.addEventListener(`keydown`, onEditorEsc);
     hashtagInput.addEventListener(`input`, onHashtagInput);
+    imgUploadForm.addEventListener(`submit`, onSubmitUserData);
   };
 
   const hide = () => {
@@ -52,12 +79,7 @@
     imgUploadCancel.removeEventListener(`click`, hide);
     document.removeEventListener(`keydown`, onEditorEsc);
     hashtagInput.removeEventListener(`input`, onHashtagInput);
-  };
-
-  const onHashtagInput = () => {
-    const validateResult = validateHashtag(hashtagInput.value);
-    hashtagInput.setCustomValidity(validateResult);
-    hashtagInput.style.borderColor = validateResult ? `red` : `transparent`;
+    imgUploadForm.removeEventListener(`submit`, onSubmitUserData);
   };
 
   const validateHashtag = (hashtagValue) => {
