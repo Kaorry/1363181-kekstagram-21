@@ -6,7 +6,18 @@ window.api.load(
     (data) => {
       window.data.setPhotoList(data);
 
-      pictures.appendChild(window.photoList.render(window.data.getPhotoList()));
+      window.filters.setChangeHandler(() => {
+        const photoList = window.data.getPhotoList();
+        const filteredPhotoList = window.filters.applyFilter(photoList);
+        const oldPictures = document.querySelectorAll(`.picture`);
+        oldPictures.forEach((element) => {
+          element.remove();
+        });
+
+        pictures.appendChild(window.photoList.render(filteredPhotoList));
+      });
+
+      window.filters.show();
 
       pictures.addEventListener(
           `click`,
