@@ -23,7 +23,15 @@
     return fragment;
   };
 
+  const clear = () => {
+    const oldPictures = document.querySelectorAll(`.picture`);
+    oldPictures.forEach((element) => {
+      element.remove();
+    });
+  };
+
   window.photoList = {
     render,
+    clear,
   };
 })();
