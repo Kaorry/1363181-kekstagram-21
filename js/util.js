@@ -3,17 +3,17 @@
 (function () {
   const KEY_ESCAPE = `Escape`;
 
-  const createCancelKeyHandler = (fn) => {
+  const createEscapeHandler = (handler) => {
     return function (event) {
-      if (event.key === KEY_ESCAPE && fn(event.target)) {
-        event.preventDefault();
+      if (event.key === KEY_ESCAPE) {
+        handler(event);
       }
     };
   };
 
   const between = (value, min, max) => Math.min(max, Math.max(min, value));
 
-  const debounce = (cb, interval) => {
+  const debounce = (callback, interval) => {
     let lastTimeout = null;
 
     return (...parameters) => {
@@ -21,13 +21,13 @@
         window.clearTimeout(lastTimeout);
       }
       lastTimeout = window.setTimeout(() => {
-        cb(...parameters);
+        callback(...parameters);
       }, interval);
     };
   };
 
   window.util = {
-    createCancelKeyHandler,
+    createEscapeHandler,
     between,
     debounce,
   };

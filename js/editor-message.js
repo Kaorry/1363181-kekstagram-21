@@ -38,9 +38,9 @@
     const errorMessage = templateErrorMessage.cloneNode(true);
     const errorButton = errorMessage.querySelector(`.error__button`);
 
-    const onEsc = window.util.createCancelKeyHandler(() => {
+    const onEsc = window.util.createEscapeHandler((event) => {
       hide();
-      return true;
+      event.preventDefault();
     });
 
     const onClick = (event) => {
@@ -62,7 +62,6 @@
     errorMessage.addEventListener(`click`, onClick);
     errorButton.addEventListener(`click`, hide);
   };
-
 
   window.editorMessage = {
     showSuccessMessage,

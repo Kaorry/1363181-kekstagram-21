@@ -5,28 +5,15 @@
   const LOAD_DATA_URL = `${BASE_URL}/data`;
   const UPLOAD_DATA_URL = `${BASE_URL}`;
 
-  const Endpoints = {
-    load: {
-      url: LOAD_DATA_URL,
-      method: `GET`,
-    },
-    upload: {
-      url: UPLOAD_DATA_URL,
-      method: `POST`,
-    },
-  };
-
   const StatusCode = {
     OK: 200
   };
 
   const TIMEOUT_IN_MS = 10000;
 
-  const createXHR = (endpoint, onSuccess, onError) => {
+  const createXHR = (onSuccess, onError) => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = `json`;
-
-    xhr.open(endpoint.method, endpoint.url);
 
     const onLoadData = () => {
       let error;
@@ -59,12 +46,14 @@
   };
 
   const load = (onSuccess, onError) => {
-    const xhr = createXHR(Endpoints.load, onSuccess, onError);
+    const xhr = createXHR(onSuccess, onError);
+    xhr.open(`GET`, LOAD_DATA_URL);
     xhr.send();
   };
 
   const upload = (data, onSuccess, onError) => {
-    const xhr = createXHR(Endpoints.upload, onSuccess, onError);
+    const xhr = createXHR(onSuccess, onError);
+    xhr.open(`POST`, UPLOAD_DATA_URL);
     xhr.send(data);
   };
 

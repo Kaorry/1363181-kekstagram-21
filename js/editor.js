@@ -12,10 +12,10 @@
   const hashtagInput = imgUploadOverlay.querySelector(`.text__hashtags`);
   const descriptionInput = imgUploadOverlay.querySelector(`.text__description`);
 
-  const onEditorEsc = window.util.createCancelKeyHandler((target) => {
-    if (!target.matches(`input[type="text"], textarea`)) {
+  const onEditorEsc = window.util.createEscapeHandler((event) => {
+    if (!event.target.matches(`input[type="text"], textarea`)) {
       hide();
-      return true;
+      event.preventDefault();
     }
 
     return false;

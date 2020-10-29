@@ -9,10 +9,7 @@ window.api.load(
       window.filters.setChangeHandler(() => {
         const photoList = window.data.getPhotoList();
         const filteredPhotoList = window.filters.applyFilter(photoList);
-        const oldPictures = document.querySelectorAll(`.picture`);
-        oldPictures.forEach((element) => {
-          element.remove();
-        });
+        window.photoList.clear();
 
         pictures.appendChild(window.photoList.render(filteredPhotoList));
       });

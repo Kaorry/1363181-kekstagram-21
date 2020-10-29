@@ -41,16 +41,13 @@
     switch (currentFilter.id) {
       case Filters.random: {
         return photoList
-          .sort(() => {
-            return Math.random() - 0.5;
-          })
+          .sort(() => Math.random() - 0.5)
           .slice(0, RANDOM_PHOTO_AMOUNT);
       }
 
       case Filters.discussed: {
-        return [...photoList].sort((left, right) => {
-          return right.comments.length - left.comments.length;
-        });
+        return [...photoList]
+          .sort((left, right) => right.comments.length - left.comments.length);
       }
 
       default:
