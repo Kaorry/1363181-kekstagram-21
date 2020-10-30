@@ -1,37 +1,35 @@
 'use strict';
 
-(function () {
-  const templatePhotoItem = document.querySelector(`#picture`).content.querySelector(`.picture`);
+const templatePhotoItem = document.querySelector(`#picture`).content.querySelector(`.picture`);
 
-  const renderPhotoItem = (photo) => {
-    const photoElement = templatePhotoItem.cloneNode(true);
+const renderPhotoItem = (photo) => {
+  const photoElement = templatePhotoItem.cloneNode(true);
 
-    photoElement.querySelector(`.picture__img`).src = photo.url;
-    photoElement.querySelector(`.picture__likes`).textContent = photo.likes;
-    photoElement.querySelector(`.picture__comments`).textContent = photo.comments.length;
-    photoElement.dataset.id = photo.id;
+  photoElement.querySelector(`.picture__img`).src = photo.url;
+  photoElement.querySelector(`.picture__likes`).textContent = photo.likes;
+  photoElement.querySelector(`.picture__comments`).textContent = photo.comments.length;
+  photoElement.dataset.id = photo.id;
 
-    return photoElement;
-  };
+  return photoElement;
+};
 
-  const render = (photoList) => {
-    const fragment = document.createDocumentFragment();
-    for (const photo of photoList) {
-      fragment.appendChild(renderPhotoItem(photo));
-    }
+const render = (photoList) => {
+  const fragment = document.createDocumentFragment();
+  for (const photo of photoList) {
+    fragment.appendChild(renderPhotoItem(photo));
+  }
 
-    return fragment;
-  };
+  return fragment;
+};
 
-  const clear = () => {
-    const oldPictures = document.querySelectorAll(`.picture`);
-    oldPictures.forEach((element) => {
-      element.remove();
-    });
-  };
+const clear = () => {
+  const oldPictures = document.querySelectorAll(`.picture`);
+  oldPictures.forEach((element) => {
+    element.remove();
+  });
+};
 
-  window.photoList = {
-    render,
-    clear,
-  };
-})();
+window.photoList = {
+  render,
+  clear,
+};
