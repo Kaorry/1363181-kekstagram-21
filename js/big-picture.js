@@ -10,7 +10,7 @@ const htmlELements = (() => {
 
   return {
     main,
-    img: main.querySelector(`.big-picture__img`).querySelector(`img`),
+    img: main.querySelector(`.big-picture__img img`),
     likesCount: main.querySelector(`.likes-count`),
     commentCounter: main.querySelector(`.social__comment-count`),
     commentsCount: main.querySelector(`.comments-count`),
