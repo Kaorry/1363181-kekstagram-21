@@ -7,6 +7,7 @@ const imgUploadForm = document.querySelector(`.img-upload__form`);
 const imgUploadInput = document.querySelector(`.img-upload__input`);
 const imgUploadOverlay = document.querySelector(`.img-upload__overlay`);
 const imgUploadCancel = document.querySelector(`.img-upload__cancel`);
+const imgUploudPreview = document.querySelector(`.img-upload__preview img`);
 
 const hashtagInput = imgUploadOverlay.querySelector(`.text__hashtags`);
 const descriptionInput = imgUploadOverlay.querySelector(`.text__description`);
@@ -54,6 +55,20 @@ const resetEditorForm = () => {
   hashtagInput.style.borderColor = `transparent`;
 };
 
+const loadImage = (file) => {
+  const reader = new FileReader();
+
+  reader.addEventListener(
+      `load`,
+      () => {
+        imgUploudPreview.src = reader.result;
+      },
+      {once: true}
+  );
+
+  reader.readAsDataURL(file);
+};
+
 const show = () => {
   resetEditorForm();
   window.editorEffect.enable();
@@ -65,6 +80,8 @@ const show = () => {
   document.addEventListener(`keydown`, onEditorEsc);
   hashtagInput.addEventListener(`input`, onHashtagInput);
   imgUploadForm.addEventListener(`submit`, onSubmitUserData);
+
+  loadImage(imgUploadInput.files[0]);
 };
 
 const hide = () => {
