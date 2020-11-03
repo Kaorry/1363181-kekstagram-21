@@ -1,6 +1,6 @@
 'use strict';
 
-const DEFAULT_EFFECT_INTENSITY = 20;
+const DEFAULT_EFFECT_INTENSITY = 100;
 const DEFAULT_SCALE_VALUE = 100;
 const DEFAULT_EFFECT = `none`;
 const STEP_SCALE_VALUE = 25;
