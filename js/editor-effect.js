@@ -4,6 +4,8 @@ const DEFAULT_EFFECT_INTENSITY = 100;
 const DEFAULT_SCALE_VALUE = 100;
 const DEFAULT_EFFECT = `none`;
 const STEP_SCALE_VALUE = 25;
+const MIN_SCALE = 25;
+const MAX_SCALE = 100;
 
 const previewContainer = document.querySelector(`.img-upload__preview-container`);
 const imageUploadEffects = document.querySelector(`.img-upload__effects`);
@@ -125,7 +127,7 @@ const applyEffect = (effect, intensity) => {
 
 const changeScale = (direction) => {
   const newScaleValue = currentScaleValue + STEP_SCALE_VALUE * direction;
-  currentScaleValue = window.util.between(newScaleValue, 25, 100);
+  currentScaleValue = window.util.between(newScaleValue, MIN_SCALE, MAX_SCALE);
   applyScale(currentScaleValue);
 };
 

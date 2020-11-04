@@ -1,5 +1,16 @@
 'use strict';
 
+const ErrorStyles = {
+  zIndex: 100,
+  margin: `0 auto`,
+  lineHeight: `60px`,
+  textAlign: `center`,
+  backgroundColor: `red`,
+  position: `absolute`,
+  left: 0,
+  right: 0,
+  fontSize: `30px`,
+};
 const pictures = document.querySelector(`.pictures`);
 
 window.api.load(
@@ -34,15 +45,7 @@ window.api.load(
     (error) => {
       const node = document.createElement(`div`);
 
-      node.style.zIndex = 100;
-      node.style.margin = `0 auto`;
-      node.style.lineHeight = `60px`;
-      node.style.textAlign = `center`;
-      node.style.backgroundColor = `red`;
-      node.style.position = `absolute`;
-      node.style.left = 0;
-      node.style.right = 0;
-      node.style.fontSize = `30px`;
+      node.style = ErrorStyles;
 
       node.textContent = error;
       document.body.insertAdjacentElement(`afterbegin`, node);

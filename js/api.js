@@ -8,6 +8,11 @@ const StatusCode = {
   OK: 200
 };
 
+const Method = {
+  GET: `GET`,
+  POST: `POST`,
+};
+
 const TIMEOUT_IN_MS = 10000;
 
 const createXHR = (onSuccess, onError) => {
@@ -46,13 +51,13 @@ const createXHR = (onSuccess, onError) => {
 
 const load = (onSuccess, onError) => {
   const xhr = createXHR(onSuccess, onError);
-  xhr.open(`GET`, LOAD_DATA_URL);
+  xhr.open(Method.GET, LOAD_DATA_URL);
   xhr.send();
 };
 
 const upload = (data, onSuccess, onError) => {
   const xhr = createXHR(onSuccess, onError);
-  xhr.open(`POST`, UPLOAD_DATA_URL);
+  xhr.open(Method.POST, UPLOAD_DATA_URL);
   xhr.send(data);
 };
 
