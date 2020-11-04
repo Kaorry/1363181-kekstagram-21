@@ -2,6 +2,7 @@
 
 const HASHTAG_AMOUNT = 5;
 const HASHTAG_RULE = /^#[\wа-яё]{1,19}$/;
+const HASHTAG_SPLIT_RULE = /\s+/;
 
 const imgUploadForm = document.querySelector(`.img-upload__form`);
 const imgUploadInput = document.querySelector(`.img-upload__input`);
@@ -105,7 +106,7 @@ const validateHashtag = (hashtagValue) => {
     return ``;
   }
 
-  const hashtagList = value.split(/\s+/);
+  const hashtagList = value.split(HASHTAG_SPLIT_RULE);
 
   const hashtagSet = new Set(hashtagList);
   if (hashtagList.length !== hashtagSet.size) {
@@ -117,7 +118,7 @@ const validateHashtag = (hashtagValue) => {
   }
 
   for (let hashtag of hashtagList) {
-    if (HASHTAG_RULE.test(hashtag) === false) {
+    if (!HASHTAG_RULE.test(hashtag)) {
       return `Неверный формат хэш-тега "${hashtag}"`;
     }
   }

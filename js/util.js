@@ -3,7 +3,7 @@
 const KEY_ESCAPE = `Escape`;
 
 const createEscapeHandler = (handler) => {
-  return function (event) {
+  return (event) => {
     if (event.key === KEY_ESCAPE) {
       handler(event);
     }
